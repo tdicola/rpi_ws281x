@@ -49,22 +49,34 @@
 
 #define ARRAY_SIZE(stuff)                        (sizeof(stuff) / sizeof(stuff[0]))
 
-#define TARGET_FREQ                              400000
+#define TARGET_FREQ                              WS2811_TARGET_FREQ
 #define GPIO_PIN                                 18
-#define LED_COUNT                                64
 #define DMA                                      5
 
 #define WIDTH                                    8
 #define HEIGHT                                   8
+#define LED_COUNT                                (WIDTH * HEIGHT)
 
 
 ws2811_t ledstring =
 {
-    .count = LED_COUNT,
     .freq = TARGET_FREQ,
     .dmanum = DMA,
-    .gpionum = GPIO_PIN,
-    .invert = 1,
+    .channel =
+    {
+        [0] =
+        {
+            .gpionum = GPIO_PIN,
+            .count = LED_COUNT,
+            .invert = 0,
+        },
+        [1] =
+        {
+            .gpionum = 0,
+            .count = 0,
+            .invert = 0,
+        },
+    },
 };
 
 ws2811_led_t matrix[WIDTH][HEIGHT];
@@ -78,7 +90,7 @@ void matrix_render(void)
     {
         for (y = 0; y < HEIGHT; y++)
         {
-            ledstring.leds[(y * WIDTH) + x] = matrix[x][y];
+            ledstring.channel[0].leds[(y * WIDTH) + x] = matrix[x][y];
         }
     }
 }
